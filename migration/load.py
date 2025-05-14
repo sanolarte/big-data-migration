@@ -8,7 +8,8 @@ import pandas as pd
 from fields import get_fields, get_mandatory_fields
 from extract import load_data_into_df
 from transform import cleanse_data
-from database.connection import engine
+from database.connection import engine, run_query, run_duplicate_precheck
+from database.queries import build_insert_query
 
 
 def load_data(file_location, entity):
@@ -24,12 +25,20 @@ def load_data(file_location, entity):
 
         
     cleansed_df.to_sql(
-        name=entity,       # Target table name
+        name=f"stg_{entity}", # Load to staging table
         con=engine,
-        if_exists='append',  # Options: 'fail', 'replace', 'append'
+        if_exists='replace',
         index=False
     )
 
+    # run a precheck for duplicate entity_ids
+    duplicates = run_duplicate_precheck(entity, fields)
+
+    if duplicates:
+        print("There are duplicates!!")
+    else:
+        string_query = build_insert_query(entity, fields)
+        run_query(string_query)
 
 
-load_data("jobs.csv", "jobs")
+load_data("departments.csv", "departments")

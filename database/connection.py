@@ -11,7 +11,23 @@ database = "abc_hr"
 engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
 
 
-# with engine.connect() as con:
-#     with open("init.sql") as file:
-#         query = text(file.read())
-#         con.execute(query)
+
+def run_query(string_query):
+    with engine.begin() as conn:
+        result = conn.execute(text(string_query), {})
+    
+    return result
+    
+
+
+
+def run_duplicate_precheck(entity, fields):
+    primary_key_field = fields[0] # First element is primary key from imported data
+    query = f"""
+        SELECT {primary_key_field} FROM stg_{entity}
+        WHERE {primary_key_field} IN (SELECT {primary_key_field} FROM {entity})
+    """
+
+    results = run_query(query)
+
+    return results.fetchall()
