@@ -7,7 +7,7 @@ FIELDS = {
             "department_id",
             "job_id"
         ],
-        "mandatory_fields": ["id", "name"],
+        "mandatory_fields": ["employee_id", "name"],
     },
 
     "jobs": {
