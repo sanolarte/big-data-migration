@@ -8,6 +8,7 @@ FIELDS = {
             "job_id"
         ],
         "mandatory_fields": ["employee_id", "name"],
+        "foreign_keys": ["department_id", "job_id"]
     },
 
     "jobs": {
@@ -27,6 +28,8 @@ FIELDS = {
     }
 }
 
+def get_foreign_keys(entity):
+    return FIELDS.get(entity).get("foreign_keys")
 
 def get_fields(entity):
     return FIELDS.get(entity)["fields"]
