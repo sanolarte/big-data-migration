@@ -3,6 +3,7 @@ import sys
 import json
 
 from flask import Flask, request, abort, jsonify
+from flask_cors import CORS
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from migration.load import load_data
@@ -11,10 +12,13 @@ from utils.utils import store_file
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/migrate", methods=['POST'])
 def migrate():
+    import pdb; pdb.set_trace()
+
     if request.method == 'POST':
         if 'file' not in request.files:
             return abort(400, "Missing file")
@@ -32,3 +36,4 @@ def migrate():
 
         except DuplicateDataError as e:
             return jsonify({"ids": e.duplicates, "entity": e.entity, "message": e.message}), 409
+
