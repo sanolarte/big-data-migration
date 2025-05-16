@@ -6,9 +6,10 @@ from sqlalchemy import text
 import pandas as pd
 from fastavro import writer, parse_schema
 
-from connection import engine
-from models import get_model_from_entity_name
-from utils import generate_avro_schema_from_model
+from database.connection import engine
+from database.models import get_model_from_entity_name
+from database.utils import generate_avro_schema_from_model
+from migration.exceptions import InvalidModelError, EmptyDataFrameError
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 BACKUP_DIR = os.path.join(base_dir, "backups")
@@ -17,7 +18,7 @@ BACKUP_DIR = os.path.join(base_dir, "backups")
 def backup(entity):
     model = get_model_from_entity_name(entity)
     if not model:
-        return
+        raise InvalidModelError()
     schema_dict = generate_avro_schema_from_model(model)
     parsed_schema = parse_schema(schema_dict)
 
@@ -26,7 +27,7 @@ def backup(entity):
 
     if df.empty:
         print(f"No data found in table {entity}.")
-        return
+        raise EmptyDataFrameError()
 
     # Handle datetime fields
     datetime_cols = df.select_dtypes(include=["datetime64[ns]"]).columns
@@ -49,5 +50,3 @@ def backup(entity):
 def restore(filename, entity):
     pass
 
-
-backup("employees")

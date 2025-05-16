@@ -7,7 +7,9 @@ from flask_cors import CORS
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from migration.load import load_data
-from migration.exceptions import DuplicateDataError
+from database.connection import select_data
+from database.backup import backup
+from migration.exceptions import DuplicateDataError, EmptyDataFrameError, InvalidModelError
 from utils.utils import store_file
 
 
@@ -26,19 +28,55 @@ def migrate():
             if not entity:
                 return abort(400, "Missing entity key in payload")
 
-        file = request.files["file"]
-        file_path = store_file(file)
-        try:
-            rowcount = load_data(file_path, entity)
-            return (
-                jsonify({"message": f"Inserted {rowcount} new rows to {entity} table"}),
-                201,
-            )
+            file = request.files["file"]
+            file_path = store_file(file)
+            try:
+                rowcount = load_data(file_path, entity)
+                return (
+                    jsonify({"message": f"Inserted {rowcount} new rows to {entity} table"}),
+                    201,
+                )
 
-        except DuplicateDataError as e:
-            return (
-                jsonify(
-                    {"ids": e.duplicates, "entity": e.entity, "message": e.message}
-                ),
-                409,
-            )
+            except DuplicateDataError as e:
+                return (
+                    jsonify(
+                        {"ids": e.duplicates, "entity": e.entity, "message": e.message}
+                    ),
+                    409,
+                )
+
+@app.route("/backup", methods=["GET"])
+def backup_handler():
+    data = request.form.to_dict().get("data")
+    if data:
+        entity = json.loads(data).get("entity")
+        if not entity:
+            return abort(400, "Missing entity key in payload")
+        try:
+            file_location = backup(entity)
+            return jsonify({"file_location": f"File location: {file_location}"}), 200
+        except EmptyDataFrameError:
+            return abort(400, f"Table {entity} is empty")
+        except InvalidModelError:
+            return abort(400, f"Entity name {entity} is not valid")
+    else:
+        return abort(400, "Missing data key in payload")
+
+
+
+
+
+@app.route("/list", methods=["GET"])
+def list():
+    result = select_data("jobs")
+    rows = result.fetchall()
+    columns = result.keys()  # This gets the column names
+
+    # Combine column names with row values
+    data = [dict(zip(columns, row)) for row in rows]
+
+    # Convert to JSON (optional)
+    # json_data = json.dumps(data, indent=2)
+
+    # Convert to JSON
+    return jsonify({"data": data}), 200
