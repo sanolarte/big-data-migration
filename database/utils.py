@@ -23,7 +23,7 @@ def generate_avro_schema_from_model(model):
 
     schema = {
         "type": "record",
-        "name": model.__name__,
+        "name": model.__tablename__,
         # "namespace": f"{model}.avro",
         "fields": fields,
     }
