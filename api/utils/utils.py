@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 
 base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 UPLOAD_FOLDER = os.path.join(base_dir, "migration", "files")
-ALLOWED_EXTENSIONS = ["csv"]
+ALLOWED_EXTENSIONS = ["csv", "avro"]
 
 
 def allowed_files(filename):
@@ -16,7 +16,7 @@ def allowed_files(filename):
 
 def store_file(file_obj):
     if file_obj.filename == "":
-        return False
+        return None
     if file_obj and allowed_files(file_obj.filename):
         filename = secure_filename(file_obj.filename)
         filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"

@@ -21,27 +21,30 @@ def load_data(file_location, entity):
     df = load_data_into_df(file_location, fields)
 
     cleansed_df = cleanse_data(df, fields, mandatory_fields)
-
     cleansed_df["imported_from"] = "file"
+    result, validation = load_df_into_table(cleansed_df, entity, fields)
+    if validation == "duplicates":
+        raise DuplicateDataError(
+            "Trying to insert records that already exist in destination table",
+            result,
+            entity,
+        )
+    elif validation == "OK":
+        return result
 
+
+def load_df_into_table(df, entity, fields):
     # Load data into staging table
-    cleansed_df.to_sql(
-        name=f"stg_{entity}", con=engine, if_exists="replace", index=False
-    )
-
+    df.to_sql(name=f"stg_{entity}", con=engine, if_exists="replace", index=False)
     # Run a precheck for duplicate entity_ids
     duplicates = run_duplicate_precheck(entity, fields)
 
     if duplicates:
         formatted_duplicates = [record[0] for record in duplicates]
-        raise DuplicateDataError(
-            "Trying to insert records that already exist in destination table",
-            formatted_duplicates,
-            entity,
-        )
+        return formatted_duplicates, "duplicates"
     else:
         foreign_keys = get_foreign_keys(entity)
         # If there are no duplicates, insert data into actual table
         string_query = build_insert_query(entity, fields, foreign_keys)
         result = run_query(string_query)
-        return result.rowcount
+        return result.rowcount, "OK"
