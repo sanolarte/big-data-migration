@@ -10,48 +10,61 @@ $(function () {
     datatable_1: renderDataTable_1,
     datatable_2: renderDataTable_2,
     restore: renderRestore,
-
+    backup: renderBackup,
   };
 
   function renderHome() {
     $("#app").html(`
       <div class="text-center">
-        <h1>Bienvenido a la plataforma de migración</h1>
-        <p>Selecciona "Form" en el menú para migrar datos.</p>
+        <h1>Welcome to the migration platform</h1>
+        <p>Select <a href="#form">migrate</a> from the menu to migrate data.</p>
       </div>
     `);
   }
 
   function renderForm() {
-  const formHtml = `
-      <form id="migrationForm" class="needs-validation" novalidate>
-        <div class="col-lg-12">
-          <div class="row align-items-center">
-            <div class="mb-3 col-md-3">
-              <label class="form-label">Choose a file</label>
-              <input type="file" class="form-control" id="file_input" required />
-              <div class="invalid-feedback">Archivo requerido.</div>
-            </div>
-            <div class="mb-3 col-md-3">
-              <div><label class="form-label col-lg-12">Entity</label></div>
-              <div class="form-check form-check-inline">
-                <input id="option-employees" class="form-check-input" type="radio" name="entityOption" value="employees">
-                <label for="option-employees" class="form-check-label">Employees</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input id="option-jobs" class="form-check-input" type="radio" name="entityOption" value="jobs">
-                <label for="option-jobs" class="form-check-label">Jobs</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input id="option-departments" class="form-check-input" type="radio" name="entityOption" value="departments" checked>
-                <label for="option-departments" class="form-check-label">Departments</label>
-              </div>
-            </div>
-            <div class="mb-3 col-md-3 align-self-end"><button id="send_btn" type="submit" class="btn btn-primary">Send</button></div>
-          </div>
+    const formHtml = `
+      <div class="card" style="width: 35rem;">
+        <div class="card-header">
+          <h5 class="card-title">Migrate</h5>
         </div>
-      </form>
-      <div id="output_result" class="mt-4"></div>
+        <div class="card-body">
+          <div class="card-title alert alert-primary" role="alert" style="width: 450px;">
+            Please upload a file to start the migration.
+          </div>
+          <form id="migrationForm" class="needs-validation" novalidate>
+            <div class="col-lg-12">
+              <div class="row align-items-center">
+                <div class="mb-3 col-md-12">
+                  <label class="form-label">Choose a file</label>
+                  <input type="file" class="form-control" id="file_input" required />
+                  <div class="invalid-feedback">Archivo requerido.</div>
+                </div>
+                <div class="mb-3 col-md-10">
+                  <div><label class="form-label col-lg-12">Entity</label></div>
+                  <div class="form-check form-check-inline">
+                    <input id="option-employees" class="form-check-input" type="radio" name="entityOption" value="employees">
+                    <label for="option-employees" class="form-check-label">Employees</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input id="option-jobs" class="form-check-input" type="radio" name="entityOption" value="jobs">
+                    <label for="option-jobs" class="form-check-label">Jobs</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input id="option-departments" class="form-check-input" type="radio" name="entityOption" value="departments" checked>
+                    <label for="option-departments" class="form-check-label">Departments</label>
+                  </div>
+                </div>
+                </div>
+              <button id="send_btn" type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-file-arrow-up"></i>
+                Send
+              </button>
+            </div>
+          </form>
+          <div id="output_result" class="mt-4"></div>
+        </div>
+      </div>
     `;
   
     $("#app").html(formHtml);
@@ -370,6 +383,175 @@ $(function () {
     getAllTable_2(2021)
 
   }
+
+  function renderRestore() {
+    const formHtml = `
+        <div class="card" style="width: 35rem;">
+          <div class="card-header">
+            <h5 class="card-title">Restore</h5>
+          </div>
+          <div class="card-body">
+            <div class="card-title alert alert-primary" role="alert" style="width: 450px;">
+              Use this option to restore a table from an AVRO file.
+            </div>
+            <form id="restoreForm" class="needs-validation" novalidate>
+              <div class="col-lg-12">
+                <div class="row align-items-center">
+                  <div class="mb-3 col-md-10">
+                    <label class="form-label">Choose a file</label>
+                    <input type="file" class="form-control" id="file_input" required />
+                    <div class="invalid-feedback">Archivo requerido.</div>
+                  </div>
+                  <div class="mb-3 col-md-12">
+                    <div><label class="form-label col-lg-12">Entity</label></div>
+                    <div class="form-check form-check-inline">
+                      <input id="option-employees" class="form-check-input" type="radio" name="entityOption" value="employees">
+                      <label for="option-employees" class="form-check-label">Employees</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input id="option-jobs" class="form-check-input" type="radio" name="entityOption" value="jobs">
+                      <label for="option-jobs" class="form-check-label">Jobs</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input id="option-departments" class="form-check-input" type="radio" name="entityOption" value="departments" checked>
+                      <label for="option-departments" class="form-check-label">Departments</label>
+                    </div>
+                  </div>
+                  <button id="send_btn" type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    Send
+                  </button>
+                </div>
+              </div>
+            </form>
+            <div id="output_result" class="mt-4"></div>
+          </div>
+        </div>
+      `;
+    
+      $("#app").html(formHtml);
+    
+      // Desasociar cualquier evento previo para evitar duplicados
+      $("#restoreForm").off("submit");
+    
+      // Asociar evento
+      $(document).off("submit", "#restoreForm");
+      $(document).on("submit", "#restoreForm", async function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+  
+        const form = this;
+        if (!form.checkValidity()) {
+          form.classList.add("was-validated");
+          return;
+        }
+  
+        const file = $("#file_input")[0].files[0];
+        const entity = $("input[name='entityOption']:checked").val();
+  
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("data", JSON.stringify({ entity }));
+  
+        try {
+          const res = await fetch("http://localhost:8000/restore", {
+            method: "POST",
+            body: formData
+          });
+          const data = await res.json();
+  
+          $("#output_result").html(`<div class="alert alert-success">${data.message}</div>`);
+  
+  
+  
+        } catch (error) {
+          console.error(error);
+          $("#output_result").html(`<div class="alert alert-danger">Error</div>`);
+        }
+      });
+  }
+
+  function renderBackup() {
+    const html = `
+      <div class="card" style="width: 35rem;">
+        <div class="card-header">
+          <h5 class="card-title">Backup</h5>
+        </div>
+        <div class="card-body">
+          <div class="card-title alert alert-warning" role="alert" style="width: 450px;">
+          Use this option to backup a table to an AVRO file.
+          </div>
+          <div class="row">
+            <div class="mb-3 col-md-12">
+              <div><label class="form-label col-lg-12">Entity</label></div>
+              <div class="form-check form-check-inline">
+                <input id="option-employees" class="form-check-input" type="radio" name="entityOption" value="employees">
+                <label for="option-employees" class="form-check-label">Employees</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input id="option-jobs" class="form-check-input" type="radio" name="entityOption" value="jobs">
+                <label for="option-jobs" class="form-check-label">Jobs</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input id="option-departments" class="form-check-input" type="radio" name="entityOption" value="departments" checked>
+                <label for="option-departments" class="form-check-label">Departments</label>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" id="backup_table">
+            <i class="fa-solid fa-file-arrow-down"></i>
+            Download
+          </button>
+        </div>
+      </div>
+    `
+
+    $("#app").html(html);
+
+    async function downloadBackup() {
+        const entity = $("input[name='entityOption']:checked").val();
+
+      const formData = new FormData();
+      formData.append("data", JSON.stringify({ entity }));
+
+      const res = await fetch("http://localhost:8000/backup", {
+        method: "POST",
+        body: formData,
+      })
+
+      const json = await res.json();
+    
+      const filePathRaw = json.file_location; 
+      const match = filePathRaw.match(/\/.*\.avro$/);
+      if (!match) {
+        alert("Ruta de archivo inválida");
+        return;
+      }
+    
+      const filePath = match[0];
+    
+      const downloadRes = await fetch(`http://localhost:8000/download?path=${encodeURIComponent(filePath)}`);
+    
+      if (!downloadRes.ok) {
+        alert("Error al descargar el archivo");
+        return;
+      }
+    
+      const blob = await downloadRes.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filePath.split("/").pop(); 
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+    
+
+    $("#backup_table").on("click", function () {
+      downloadBackup()
+    })
+  }
   
 
   function router() {
@@ -386,7 +568,6 @@ $(function () {
 
   $('input[name="entityOption"]').on('change', function() {
     const selectedOption = $(this).val();
-    console.log(selectedOption)
     if (selectedOption == 'departments') {
       $("#tableResponseDepartmentsContainer").removeClass("d-none").addClass("d-block")
       $("#tableResponseJobsContainer").removeClass("d-block").addClass("d-none")
@@ -403,83 +584,6 @@ $(function () {
 
     }
   })
-
-function renderRestore() {
-  const formHtml = `
-      <div class="alert alert-primary" role="alert">
-        Use this option to restore a table from an AVRO file.
-      </div>
-      <form id="restoreForm" class="needs-validation" novalidate>
-        <div class="col-lg-12">
-          <div class="row align-items-center">
-            <div class="mb-3 col-md-3">
-              <label class="form-label">Choose a file</label>
-              <input type="file" class="form-control" id="file_input" required />
-              <div class="invalid-feedback">Archivo requerido.</div>
-            </div>
-            <div class="mb-3 col-md-3">
-              <div><label class="form-label col-lg-12">Entity</label></div>
-              <div class="form-check form-check-inline">
-                <input id="option-employees" class="form-check-input" type="radio" name="entityOption" value="employees">
-                <label for="option-employees" class="form-check-label">Employees</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input id="option-jobs" class="form-check-input" type="radio" name="entityOption" value="jobs">
-                <label for="option-jobs" class="form-check-label">Jobs</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input id="option-departments" class="form-check-input" type="radio" name="entityOption" value="departments" checked>
-                <label for="option-departments" class="form-check-label">Departments</label>
-              </div>
-            </div>
-            <div class="mb-3 col-md-3 align-self-end"><button id="send_btn" type="submit" class="btn btn-primary">Send</button></div>
-          </div>
-        </div>
-      </form>
-      <div id="output_result" class="mt-4"></div>
-    `;
-  
-    $("#app").html(formHtml);
-  
-    // Desasociar cualquier evento previo para evitar duplicados
-    $("#restoreForm").off("submit");
-  
-    // Asociar evento
-    $(document).off("submit", "#restoreForm");
-    $(document).on("submit", "#restoreForm", async function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const form = this;
-      if (!form.checkValidity()) {
-        form.classList.add("was-validated");
-        return;
-      }
-
-      const file = $("#file_input")[0].files[0];
-      const entity = $("input[name='entityOption']:checked").val();
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("data", JSON.stringify({ entity }));
-
-      try {
-        const res = await fetch("http://localhost:8000/restore", {
-          method: "POST",
-          body: formData
-        });
-        const data = await res.json();
-
-        $("#output_result").html(`<div class="alert alert-success">${data.message}</div>`);
-
-
-
-      } catch (error) {
-        console.error(error);
-        $("#output_result").html(`<div class="alert alert-danger">Error</div>`);
-      }
-    });
-  }
 
 })
 

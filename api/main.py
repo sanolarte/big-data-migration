@@ -63,7 +63,7 @@ def backup_handler():
             return abort(400, "Missing entity key in payload")
         try:
             file_location = backup(entity)
-            return jsonify({"file_location": f"File location: {file_location}"}), 200
+            return jsonify({"file_location": file_location}), 200
         except EmptyDataFrameError:
             return abort(400, f"Table {entity} is empty")
         except InvalidModelError:
