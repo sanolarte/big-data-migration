@@ -7,7 +7,8 @@ from flask_cors import CORS
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from migration.load import load_data
-from database.connection import select_data
+from database.connection import select_data, run_query
+from database.queries import employees_by_quarter
 from database.backup import backup, restore
 from migration.exceptions import (
     DuplicateDataError,
@@ -105,6 +106,27 @@ def restore_handler():
                     jsonify({"message": e.message}),
                     400,
                 )
+
+
+@app.route("/employeesbyquarter/<year>", methods=["get"])
+def employees_by_quarter_handler(year):
+    query = employees_by_quarter(year)
+    result = run_query(query)
+
+    rows = result.fetchall()
+    columns = result.keys()
+    data = [dict(zip(columns, row)) for row in rows]
+    
+    return jsonify({"data": data}), 200
+
+
+
+
+
+
+
+
+
 
 
 @app.route("/list", methods=["GET"])
