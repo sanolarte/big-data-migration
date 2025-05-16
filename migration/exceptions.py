@@ -4,3 +4,10 @@ class DuplicateDataError(Exception):
         self.message = message
         self.duplicates = duplicates
         self.entity = entity
+
+class InvalidModelError(Exception):
+    pass
+
+
+class EmptyDataFrameError(Exception):
+    pass
