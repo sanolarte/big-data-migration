@@ -2,12 +2,13 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.orm import declarative_base
 
-from connection import engine
+from database.connection import engine
 
 Base = declarative_base()
 
+
 class Department(Base):
-    __tablename__ = 'departments'
+    __tablename__ = "departments"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     department_id = Column(Integer, unique=True, nullable=False)
@@ -18,38 +19,38 @@ class Department(Base):
 
 
 class Job(Base):
-    __tablename__ = 'jobs'
-    
+    __tablename__ = "jobs"
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     job_id = Column(Integer, unique=True)
     job_name = Column(String(100), nullable=False)
     imported_from = Column(String(255))
-    updated_at = Column(DateTime,  server_default=func.now(), onupdate=func.now())
-    created_at = Column(DateTime,  server_default=func.now())
-
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, server_default=func.now())
 
 
 class Employee(Base):
-    __tablename__ = 'employees'
-    
+    __tablename__ = "employees"
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     employee_id = Column(Integer, unique=True)
     name = Column(String(150), nullable=False)
     hire_datetime = Column(DateTime)
-    department_id = Column(Integer, ForeignKey('departments.id'))
-    job_id = Column(Integer, ForeignKey('jobs.id'))
+    department_id = Column(Integer, ForeignKey("departments.id"))
+    job_id = Column(Integer, ForeignKey("jobs.id"))
     imported_from = Column(String(255))
-    updated_at = Column(DateTime,  server_default=func.now(), onupdate=func.now())
-    created_at = Column(DateTime,  server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, server_default=func.now())
 
     # Declare relationships
-    department = relationship('Department', back_populates='employees')
-    job = relationship('Job', back_populates='employees')
+    department = relationship("Department", back_populates="employees")
+    job = relationship("Job", back_populates="employees")
 
 
 def get_model_from_entity_name(entity):
     entity_model_map = {"employees": Employee, "jobs": Job, "departments": Department}
     return entity_model_map.get(entity)
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
