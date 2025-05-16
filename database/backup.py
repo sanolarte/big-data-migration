@@ -4,12 +4,20 @@ import os
 
 from sqlalchemy import text
 import pandas as pd
-from fastavro import writer, parse_schema
+from fastavro import writer, parse_schema, reader
 
 from database.connection import engine
-from database.models import get_model_from_entity_name
+from database.models import get_model_from_entity_name, Employee, Job, Department
 from database.utils import generate_avro_schema_from_model
-from migration.exceptions import InvalidModelError, EmptyDataFrameError
+from migration.exceptions import (
+    InvalidModelError,
+    EmptyDataFrameError,
+    DuplicateDataError,
+    EmptyAvroFile,
+    IncompatibleAvroFileError,
+)
+from migration.load import load_df_into_table
+from migration.fields import get_fields
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 BACKUP_DIR = os.path.join(base_dir, "backups")
@@ -27,7 +35,9 @@ def backup(entity):
 
     if df.empty:
         print(f"No data found in table {entity}.")
-        raise EmptyDataFrameError()
+        raise EmptyDataFrameError(
+            "Schema name in Avro file differs from the entity name passed in the request"
+        )
 
     # Handle datetime fields
     datetime_cols = df.select_dtypes(include=["datetime64[ns]"]).columns
@@ -48,5 +58,30 @@ def backup(entity):
 
 
 def restore(filename, entity):
-    pass
+    with open(filename, "rb") as file:
+        file_reader = reader(file)
+        schema_name = file_reader.schema["name"]
+        records = [record for record in file_reader]
 
+    if not records:
+        raise EmptyAvroFile()
+
+    if entity != schema_name:
+        import pdb
+
+        pdb.set_trace()
+        raise IncompatibleAvroFileError(
+            "Name in Avro file's schema differs from the entity to be restored"
+        )
+
+    fields = get_fields(schema_name)
+    df = pd.DataFrame(records)
+    result, validation = load_df_into_table(df, schema_name, fields)
+    if validation == "duplicates":
+        raise DuplicateDataError(
+            "Trying to insert records that already exist in destination table",
+            result,
+            schema_name,
+        )
+    elif validation == "OK":
+        return result

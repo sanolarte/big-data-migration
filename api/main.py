@@ -8,8 +8,13 @@ from flask_cors import CORS
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from migration.load import load_data
 from database.connection import select_data
-from database.backup import backup
-from migration.exceptions import DuplicateDataError, EmptyDataFrameError, InvalidModelError
+from database.backup import backup, restore
+from migration.exceptions import (
+    DuplicateDataError,
+    EmptyDataFrameError,
+    InvalidModelError,
+    IncompatibleAvroFileError,
+)
 from utils.utils import store_file
 
 
@@ -33,7 +38,9 @@ def migrate():
             try:
                 rowcount = load_data(file_path, entity)
                 return (
-                    jsonify({"message": f"Inserted {rowcount} new rows to {entity} table"}),
+                    jsonify(
+                        {"message": f"Inserted {rowcount} new rows to {entity} table"}
+                    ),
                     201,
                 )
 
@@ -44,6 +51,7 @@ def migrate():
                     ),
                     409,
                 )
+
 
 @app.route("/backup", methods=["GET"])
 def backup_handler():
@@ -63,7 +71,40 @@ def backup_handler():
         return abort(400, "Missing data key in payload")
 
 
+@app.route("/restore", methods=["POST"])
+def restore_handler():
+    if request.method == "POST":
+        if "file" not in request.files:
+            return abort(400, "Missing file")
+        data = request.form.to_dict().get("data")
+        if data:
+            entity = json.loads(data).get("entity")
+            if not entity:
+                return abort(400, "Missing entity key in payload")
 
+            file = request.files["file"]
+            filename = store_file(file)
+            try:
+                row_count = restore(filename, entity)
+                return (
+                    jsonify(
+                        {"message": f"Restored {row_count} rows to {entity} table"}
+                    ),
+                    201,
+                )
+
+            except DuplicateDataError as e:
+                return (
+                    jsonify(
+                        {"ids": e.duplicates, "entity": e.entity, "message": e.message}
+                    ),
+                    409,
+                )
+            except IncompatibleAvroFileError as e:
+                return (
+                    jsonify({"message": e.message}),
+                    400,
+                )
 
 
 @app.route("/list", methods=["GET"])
