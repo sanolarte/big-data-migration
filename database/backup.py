@@ -67,9 +67,6 @@ def restore(filename, entity):
         raise EmptyAvroFile()
 
     if entity != schema_name:
-        import pdb
-
-        pdb.set_trace()
         raise IncompatibleAvroFileError(
             "Name in Avro file's schema differs from the entity to be restored"
         )
