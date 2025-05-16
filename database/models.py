@@ -24,8 +24,8 @@ class Job(Base):
     job_id = Column(Integer, unique=True)
     job_name = Column(String(100), nullable=False)
     imported_from = Column(String(255))
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime,  server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime,  server_default=func.now())
 
 
 
@@ -39,13 +39,17 @@ class Employee(Base):
     department_id = Column(Integer, ForeignKey('departments.id'))
     job_id = Column(Integer, ForeignKey('jobs.id'))
     imported_from = Column(String(255))
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime,  server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime,  server_default=func.now())
 
     # Declare relationships
     department = relationship('Department', back_populates='employees')
     job = relationship('Job', back_populates='employees')
 
+
+def get_model_from_entity_name(entity):
+    entity_model_map = {"employees": Employee, "jobs": Job, "departments": Department}
+    return entity_model_map.get(entity)
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
