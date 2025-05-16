@@ -7,7 +7,7 @@ from flask_cors import CORS
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from migration.load import load_data
-from database.connection import select_data, run_query
+from database.connection import run_query
 from database.queries import employees_by_quarter, more_than_the_mean_hired_employees
 from database.backup import backup, restore
 from migration.exceptions import (
@@ -54,7 +54,7 @@ def migrate():
                 )
 
 
-@app.route("/backup", methods=["GET"])
+@app.route("/backup", methods=["POST"])
 def backup_handler():
     data = request.form.to_dict().get("data")
     if data:
@@ -63,7 +63,7 @@ def backup_handler():
             return abort(400, "Missing entity key in payload")
         try:
             file_location = backup(entity)
-            return jsonify({"file_location": f"File location: {file_location}"}), 200
+            return jsonify({"file_location": file_location}), 200
         except EmptyDataFrameError:
             return abort(400, f"Table {entity} is empty")
         except InvalidModelError:

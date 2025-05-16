@@ -53,4 +53,5 @@ def get_model_from_entity_name(entity):
 
 
 if __name__ == "__main__":
+    print("Creating tables")
     Base.metadata.create_all(engine)
