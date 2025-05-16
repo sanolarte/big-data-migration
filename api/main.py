@@ -7,7 +7,7 @@ from flask_cors import CORS
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from migration.load import load_data
-from database.connection import select_data, run_query
+from database.connection import run_query
 from database.queries import employees_by_quarter, more_than_the_mean_hired_employees
 from database.backup import backup, restore
 from migration.exceptions import (
