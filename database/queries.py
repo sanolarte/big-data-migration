@@ -54,3 +54,32 @@ def employees_by_quarter(year_of_hire):
 
         """
     return query
+
+
+def more_than_the_mean_hired_employees(year):
+    query = f"""
+        WITH hires_by_department AS (
+            SELECT
+                d.department_id,
+                d.department_name,
+                COUNT(e.id) AS total_hires
+            FROM departments d
+            LEFT JOIN employees e ON e.department_id = d.id AND YEAR(e.hire_datetime) = {year}
+            GROUP BY d.department_id, d.department_name
+        ),
+        with_avg AS (
+            SELECT *,
+                AVG(total_hires) OVER () AS avg_hires
+            FROM hires_by_department
+        )
+        SELECT
+            department_id,
+            department_name,
+            total_hires
+        FROM with_avg
+        WHERE total_hires > avg_hires
+        ORDER BY total_hires DESC;
+
+        """
+
+    return query

@@ -8,7 +8,7 @@ from flask_cors import CORS
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from migration.load import load_data
 from database.connection import select_data, run_query
-from database.queries import employees_by_quarter
+from database.queries import employees_by_quarter, more_than_the_mean_hired_employees
 from database.backup import backup, restore
 from migration.exceptions import (
     DuplicateDataError,
@@ -116,30 +116,17 @@ def employees_by_quarter_handler(year):
     rows = result.fetchall()
     columns = result.keys()
     data = [dict(zip(columns, row)) for row in rows]
-    
+
     return jsonify({"data": data}), 200
 
 
+@app.route("/morethanthemean/<year>", methods=["GET"])
+def more_than_the_mean_hired_employees_handler(year):
+    query = more_than_the_mean_hired_employees(year)
+    result = run_query(query)
 
-
-
-
-
-
-
-
-
-@app.route("/list", methods=["GET"])
-def list():
-    result = select_data("jobs")
     rows = result.fetchall()
-    columns = result.keys()  # This gets the column names
-
-    # Combine column names with row values
+    columns = result.keys()
     data = [dict(zip(columns, row)) for row in rows]
 
-    # Convert to JSON (optional)
-    # json_data = json.dumps(data, indent=2)
-
-    # Convert to JSON
     return jsonify({"data": data}), 200
