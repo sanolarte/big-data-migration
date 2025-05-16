@@ -1,4 +1,3 @@
-
 def build_insert_query(entity, fields, foreign_keys):
     fields.append("imported_from")
     query_string = ""
@@ -30,4 +29,3 @@ def build_insert_query(entity, fields, foreign_keys):
         """
 
     return query_string
-
