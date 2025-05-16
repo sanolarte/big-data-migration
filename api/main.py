@@ -54,7 +54,7 @@ def migrate():
                 )
 
 
-@app.route("/backup", methods=["GET"])
+@app.route("/backup", methods=["POST"])
 def backup_handler():
     data = request.form.to_dict().get("data")
     if data:
