@@ -17,19 +17,16 @@ def load_data(file_location, entity):
 
     if not fields:
         return
-    
+
     df = load_data_into_df(file_location, fields)
-    
+
     cleansed_df = cleanse_data(df, fields, mandatory_fields)
 
     cleansed_df["imported_from"] = "file"
 
     # Load data into staging table
     cleansed_df.to_sql(
-        name=f"stg_{entity}",
-        con=engine,
-        if_exists='replace',
-        index=False
+        name=f"stg_{entity}", con=engine, if_exists="replace", index=False
     )
 
     # Run a precheck for duplicate entity_ids
@@ -37,7 +34,11 @@ def load_data(file_location, entity):
 
     if duplicates:
         formatted_duplicates = [record[0] for record in duplicates]
-        raise DuplicateDataError("Trying to insert records that already exist in destination table", formatted_duplicates, entity)
+        raise DuplicateDataError(
+            "Trying to insert records that already exist in destination table",
+            formatted_duplicates,
+            entity,
+        )
     else:
         foreign_keys = get_foreign_keys(entity)
         # If there are no duplicates, insert data into actual table

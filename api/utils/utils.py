@@ -5,18 +5,17 @@ import os
 from werkzeug.utils import secure_filename
 
 
-base_dir =  os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 UPLOAD_FOLDER = os.path.join(base_dir, "migration", "files")
 ALLOWED_EXTENSIONS = ["csv"]
 
 
-
 def allowed_files(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def store_file(file_obj):
-    if file_obj.filename == '':
+    if file_obj.filename == "":
         return False
     if file_obj and allowed_files(file_obj.filename):
         filename = secure_filename(file_obj.filename)
